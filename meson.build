@@ -25,14 +25,27 @@ conf.set('ENABLE_USE_BUFFER_HEADER', get_option('USE_BUFFER_HEADER'))
 static_linkage = get_option('static-linkage')
 static_linkage = static_linkage or get_option('default_library')=='static'
 
+xapian_req_version = '>= 1.5.0'
+
 zlib_dep = dependency('zlib', required:false, static:static_linkage)
 conf.set('ENABLE_ZLIB', zlib_dep.found())
 
 lzma_dep = dependency('liblzma', static:static_linkage)
 
 xapian_dep = dependency('xapian-core',
+                        version:xapian_req_version,
                         required:false,
                         static:static_linkage)
+xapian_pkg_name = 'xapian-core'
+if not xapian_dep.found()
+    # Xapian 1.5 has a versioned xapian-core pkg-config file
+    xapian_dep = dependency('xapian-core-1.5',
+                            version:xapian_req_version,
+                            required:false,
+                            static:static_linkage)
+    xapian_pkg_name = 'xapian-core-1.5'
+endif
+
 conf.set('ENABLE_XAPIAN', xapian_dep.found())
 
 pkg_requires = ['liblzma']
@@ -50,7 +63,7 @@ if zlib_dep.found()
     pkg_requires += ['zlib']
 endif
 if xapian_dep.found()
-    pkg_requires += ['xapian-core']
+    pkg_requires += [xapian_pkg_name]
     icu_dep = dependency('icu-i18n', static:static_linkage)
     pkg_requires += ['icu-i18n']
 else
