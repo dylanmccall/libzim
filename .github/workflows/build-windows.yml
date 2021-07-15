@@ -7,33 +7,33 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v2
         
-      # From https://dvdhrm.github.io/2021/04/21/meson-msvc-github-actions/
-      - name: Prepare MSVC
-        uses: bus1/cabuild/action/msdevshell@v1
-        with:
-          architecture: x64
-
-      - name: Setup Python
+      - name: Setup python 3.x
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-
-      - name: Install Python Dependencies
-        run: pip install meson ninja
-
-      - name: Prepare Build
-        run: meson setup build
-
-      - name: Run build
-        run: meson compile -v -C build
-
-      - name: Run test suite
-        run: meson test -v -C build
+          
+      - name: Install packages
+        run:
+          choco install ninja
+          
+      - name: Install python modules
+        run: pip3 install meson
+        
+      - name: Compile
+        shell: cmd
+        run: .github\script\build_libzim.cmd
+        
+      - name: Test
+        shell: cmd
+        run: |
+          cd build
+          ninja download_test_data
+          meson test --verbose
 
       - uses: actions/upload-artifact@v2
         with:
-          name: "cefpython"
+          name: "libzim"
           path: "build"
