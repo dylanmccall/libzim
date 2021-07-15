@@ -1,0 +1,40 @@
+name: Build python-libzim
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      # From https://dvdhrm.github.io/2021/04/21/meson-msvc-github-actions/
+      - name: Prepare MSVC
+        uses: bus1/cabuild/action/msdevshell@v1
+        with:
+          architecture: x64
+
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install Python Dependencies
+      run: pip install meson ninja
+      
+    - name: Prepare Build
+      run: meson setup build
+      
+    - name: Run build
+      run: meson compile -v -C build
+      
+    - name: Run test suite
+      run: meson test -v -C build
+      
+    - uses: actions/upload-artifact@v2
+      with:
+        name: "cefpython"
+        path: "build"
+
