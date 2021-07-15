@@ -1,4 +1,4 @@
-name: Build python-libzim
+name: Build libzim on Windows
 
 on: workflow_dispatch
 
@@ -16,25 +16,24 @@ jobs:
         with:
           architecture: x64
 
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
-    - name: Install Python Dependencies
-      run: pip install meson ninja
-      
-    - name: Prepare Build
-      run: meson setup build
-      
-    - name: Run build
-      run: meson compile -v -C build
-      
-    - name: Run test suite
-      run: meson test -v -C build
-      
-    - uses: actions/upload-artifact@v2
-      with:
-        name: "cefpython"
-        path: "build"
+      - name: Install Python Dependencies
+        run: pip install meson ninja
 
+      - name: Prepare Build
+        run: meson setup build
+
+      - name: Run build
+        run: meson compile -v -C build
+
+      - name: Run test suite
+        run: meson test -v -C build
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: "cefpython"
+          path: "build"
